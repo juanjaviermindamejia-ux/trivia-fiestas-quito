@@ -1,0 +1,12 @@
+# Base de datos local: cada integrante genera la suya al ejecutar la app
+data/*.db
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Editores
+.idea/
+.vscode/
