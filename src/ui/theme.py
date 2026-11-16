@@ -1,0 +1,23 @@
+"""Paleta y medidas de presentación, sin reglas del juego."""
+
+WINDOW_TITLE = "Fiestas de UIO"
+WINDOW_SIZE = "1280x820"
+BACKGROUND = "#030d25"
+PANEL = "#071c45"
+PANEL_HOVER = "#103466"
+GOLD = "#f8cf56"
+GOLD_LIGHT = "#ffe9a0"
+GOLD_DARK = "#b17a12"
+CYAN = "#59d9ff"
+TEXT = "#f6f7ff"
+MUTED = "#b3c6e6"
+OUTLINE = "#536e99"
+DISABLED = "#0b1831"
+CORRECT = "#124936"
+CORRECT_BORDER = "#8ce9b3"
+WRONG = "#572236"
+WRONG_BORDER = "#ffb2c1"
+FEEDBACK_DELAY_MS = 1300
+COMPACT_WIDTH = 760
+SIDEBAR_WIDTH = 980
+MAX_CONTENT_WIDTH = 1260
