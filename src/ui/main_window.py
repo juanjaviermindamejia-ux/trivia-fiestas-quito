@@ -8,6 +8,7 @@ from tkinter import messagebox
 from src.hardware.relay_controller import RelayController
 from src.services.game_service import GameService
 from src.ui import theme as t
+from src.ui.countdown import Countdown
 from src.ui.widgets import HexButton, HexPanel, Stage
 
 
@@ -25,6 +26,9 @@ class MainWindow(tk.Tk):
         self._completed: dict[int, bool] = {}
         self._layout_job: str | None = None
         self._next_job: str | None = None
+        self._timer_job: str | None = None
+        self._countdown = Countdown(t.LIFELINE_SECONDS)
+        self._lifeline_used: set[int] = set()
         self._relay_jobs: set[str] = set()
         self._layout_mode: tuple[bool, bool, int] | None = None
         self.title(t.WINDOW_TITLE)
@@ -99,8 +103,9 @@ class MainWindow(tk.Tk):
         self._lifelines = tk.Frame(self._main, bg=t.BACKGROUND)
         self._lifelines.pack(fill="x", pady=(0, 14))
         self._lifeline_items: list[HexButton] = []
-        for index, label in enumerate(("Pregunta IA", "50:50", "Pregunta al público")):
-            control = HexButton(self._lifelines, f"{label}\nNo disponible", lambda: None)
+        for index, label in enumerate(t.LIFELINE_NAMES):
+            control = HexButton(self._lifelines, label,
+                                lambda i=index: self._activate_lifeline(i))
             control.set_enabled(False)
             control.paint(t.DISABLED, t.OUTLINE)
             control.button.configure(bg=t.DISABLED, highlightbackground=t.DISABLED,
@@ -117,6 +122,11 @@ class MainWindow(tk.Tk):
                                            bg=t.PANEL, bold=True)
         self._progress_label.configure(wraplength=600)
         self._progress_label.pack(fill="x")
+        self._timer_label = self._label(
+            self._progress_panel.content, "Activa un comodín para iniciar los 30 segundos",
+            size=11, color=t.GOLD_LIGHT, bg=t.PANEL,
+        )
+        self._timer_label.pack(fill="x", pady=(6, 0))
         self._dots = tk.Canvas(self._progress_panel.content, height=33,
                                bg=t.PANEL, highlightthickness=0, takefocus=False)
         self._dots.pack(fill="x", pady=(6, 0))
@@ -156,8 +166,11 @@ class MainWindow(tk.Tk):
         if self._game.questions_per_game != 5:
             self._subtitle.configure(text=f"Responde {self._game.questions_per_game} preguntas y gana")
         self._update_progress()
+        self._sync_lifelines()
 
     def _show_question(self) -> None:
+        self._stop_timer()
+        self._lifeline_used.clear()
         self._screen = "question"
         self._answer_pending = False
         question = self._game.current_question
@@ -173,20 +186,34 @@ class MainWindow(tk.Tk):
         self._layout_answers()
         self._update_progress()
         self._schedule_layout()
+        self._timer_label.configure(
+            text="Activa un comodín para iniciar los 30 segundos", fg=t.GOLD_LIGHT)
+        self._sync_lifelines()
         if self._option_buttons:
             self.after_idle(self._option_buttons[0].button.focus_set)
 
     def _show_result(self) -> None:
+        self._stop_timer()
         result = self._game.result()
         self._screen = "result"
         self._clear_options()
-        self._progress_label.configure(text=f"Partida completada · {result.score} de {result.total} aciertos")
+        if result.timed_out:
+            self._progress_label.configure(text="Partida terminada · Tiempo agotado")
+            message = "Tiempo agotado\nPerdiste la partida."
+            self._timer_label.configure(text="00:00 · Sin respuesta", fg=t.WRONG_BORDER)
+            self._feedback.configure(
+                text=f"No respondiste en {t.LIFELINE_SECONDS} segundos. "
+                     f"Aciertos: {result.score} de {result.total}.", fg=t.WRONG_BORDER)
+        else:
+            self._progress_label.configure(
+                text=f"Partida completada · {result.score} de {result.total} aciertos")
+            self._timer_label.configure(text="Partida finalizada", fg=t.MUTED)
         if result.won:
             message = f"¡Ganaste!\n{result.score} de {result.total} aciertos"
             self._feedback.configure(text="¡Se enciende el relé!", fg=t.CORRECT_BORDER)
             self._relay.turn_on()
             self._schedule_relay_off()
-        else:
+        elif not result.timed_out:
             message = f"Puntaje: {result.score} de {result.total}\nInténtalo de nuevo."
             self._feedback.configure(
                 text=f"La meta es {self._game.correct_answers_to_win} aciertos. Puedes volver a jugar.",
@@ -196,9 +223,11 @@ class MainWindow(tk.Tk):
         self._play_button.set_text("Jugar de nuevo")
         self._play_button.pack(fill="x", padx=36, pady=(4, 10))
         self._update_progress()
+        self._sync_lifelines()
         self._play_button.button.focus_set()
 
     def _start_game(self) -> None:
+        self._stop_timer()
         self._play_button.set_enabled(False)
         try:
             self._game.start()
@@ -212,6 +241,8 @@ class MainWindow(tk.Tk):
             self._question_label.configure(text="No se pudo iniciar la partida")
             self._feedback.configure(text=str(error), fg=t.WRONG_BORDER)
             self._play_button.set_text("Reintentar")
+            self._timer_label.configure(text="Cronómetro detenido", fg=t.MUTED)
+            self._sync_lifelines()
             self._play_button.pack(fill="x", padx=36, pady=(4, 10))
             self._update_progress()
             self._schedule_layout()
@@ -228,7 +259,16 @@ class MainWindow(tk.Tk):
     def _on_answer(self, selected_index: int) -> None:
         if self._screen != "question" or self._answer_pending:
             return
+        # Comprobar también aquí cierra la carrera entre el clic y el tick de Tk.
+        if self._countdown.expired:
+            self._on_timeout()
+            return
+        if selected_index in self._game.eliminated_options:
+            return
         self._answer_pending = True
+        self._stop_timer()
+        self._timer_label.configure(text="Respuesta enviada · Cronómetro detenido", fg=t.MUTED)
+        self._sync_lifelines()
         question = self._game.current_question
         was_correct = self._game.submit_answer(selected_index)
         self._answered_count = self._game.current_number
@@ -241,6 +281,80 @@ class MainWindow(tk.Tk):
         )
         self._update_progress()
         self._next_job = self.after(t.FEEDBACK_DELAY_MS, self._go_next)
+
+    def _activate_lifeline(self, index: int) -> None:
+        if self._screen != "question" or self._answer_pending or index in self._lifeline_used:
+            return
+        if self._countdown.expired:
+            self._on_timeout()
+            return
+        if index == t.FIFTY_FIFTY_INDEX:
+            try:
+                eliminated = self._game.use_fifty_fifty()
+            except ValueError as error:
+                self._feedback.configure(text=str(error), fg=t.WRONG_BORDER)
+                return
+            for option_index in eliminated:
+                self._option_buttons[option_index].set_enabled(False)
+            self._layout_answers()
+            text = "50:50 eliminó dos opciones incorrectas. Elige entre las restantes."
+        else:
+            text = "Cuenta regresiva activada. Responde antes de que llegue a cero."
+        self._lifeline_used.add(index)
+        self._feedback.configure(text=text, fg=t.MUTED)
+        self._countdown.start()
+        self._sync_lifelines()
+        if self._timer_job is None:
+            self._tick_countdown()
+
+    def _sync_lifelines(self) -> None:
+        compact = self._layout_mode is not None and self._layout_mode[0]
+        playing = self._screen == "question" and not self._answer_pending
+        for index, (control, name) in enumerate(zip(self._lifeline_items, t.LIFELINE_NAMES)):
+            used = index in self._lifeline_used
+            available = playing and not used
+            if index == t.FIFTY_FIFTY_INDEX:
+                available = available and self._game.can_use_fifty_fifty
+            status = "Quitar 2 · 30 s" if index == t.FIFTY_FIFTY_INDEX else "Activar 30 s"
+            if used:
+                status = "Usado"
+            elif not playing:
+                status = "Al jugar" if self._screen == "start" else "No disponible"
+            elif not available:
+                status = "No disponible"
+            control.set_text(f"{name} · {status}" if compact else f"{name}\n{status}")
+            control.set_enabled(available)
+            fill = t.PANEL if available or used else t.DISABLED
+            border = t.GOLD if available else t.CYAN if used else t.OUTLINE
+            control.paint(fill, border)
+            control.button.configure(bg=fill, highlightbackground=fill)
+
+    def _tick_countdown(self) -> None:
+        self._timer_job = None
+        if self._screen != "question" or self._answer_pending or not self._countdown.running:
+            return
+        seconds = self._countdown.remaining
+        self._timer_label.configure(
+            text=f"Tiempo para responder: 00:{seconds:02d}",
+            fg=t.WRONG_BORDER if seconds <= t.TIMER_WARNING_SECONDS else t.GOLD_LIGHT,
+        )
+        if self._countdown.expired:
+            self._on_timeout()
+        else:
+            self._timer_job = self.after(t.TIMER_REFRESH_MS, self._tick_countdown)
+
+    def _stop_timer(self) -> None:
+        if self._timer_job is not None:
+            self.after_cancel(self._timer_job)
+            self._timer_job = None
+        self._countdown.cancel()
+
+    def _on_timeout(self) -> None:
+        if self._screen != "question" or self._answer_pending:
+            return
+        self._answer_pending = True
+        self._game.expire_question()
+        self._show_result()
 
     def _go_next(self) -> None:
         self._next_job = None
@@ -257,6 +371,7 @@ class MainWindow(tk.Tk):
         self._relay_jobs.add(job)
 
     def _on_close(self) -> None:
+        self._stop_timer()
         for job in (self._layout_job, self._next_job, *self._relay_jobs):
             if job is not None:
                 self.after_cancel(job)
@@ -361,11 +476,8 @@ class MainWindow(tk.Tk):
             for column in range(3):
                 self._lifelines.columnconfigure(column, weight=1 if not compact or column == 0 else 0,
                                                   uniform="lifeline" if not compact else "")
-            for index, (control, name) in enumerate(zip(
-                self._lifeline_items, ("Pregunta IA", "50:50", "Pregunta al público")
-            )):
+            for index, control in enumerate(self._lifeline_items):
                 control.set_padding(5 if compact else 10)
-                control.set_text(f"{name} · No disponible" if compact else f"{name}\nNo disponible")
                 control.button.configure(font=("Arial", 10 if compact else 11, "bold"),
                                           pady=2 if compact else 5)
                 control.grid(row=index if compact else 0, column=0 if compact else index,
@@ -393,6 +505,7 @@ class MainWindow(tk.Tk):
                 wraplength=205 if sidebar else page_width - 55,
             )
         self._fit_content()
+        self._sync_lifelines()
         self._update_progress()
         self._update_scrollregion()
 
@@ -404,6 +517,7 @@ class MainWindow(tk.Tk):
         self._question_label.configure(wraplength=max(100, main_width - 90))
         self._feedback.configure(wraplength=max(100, main_width - 20))
         self._progress_label.configure(wraplength=max(100, main_width - 65))
+        self._timer_label.configure(wraplength=max(100, main_width - 65))
         self._footer.configure(wraplength=max(100, self._page.winfo_width() - 12))
         for control in self._lifeline_items:
             control.set_wraplength(main_width if compact else (main_width - 16) // 3)
@@ -416,11 +530,16 @@ class MainWindow(tk.Tk):
         for column in range(2):
             self._options_frame.columnconfigure(column, weight=1 if column < columns else 0,
                                                 uniform="answer" if column < columns else "")
+        visible_index = 0
         for index, button in enumerate(self._option_buttons):
-            button.grid(row=index // columns, column=index % columns,
-                        sticky="nsew", padx=(0 if index % columns == 0 else 10, 0), pady=5)
+            if index in self._game.eliminated_options:
+                button.grid_remove()
+                continue
+            button.grid(row=visible_index // columns, column=visible_index % columns,
+                        sticky="nsew", padx=(0 if visible_index % columns == 0 else 10, 0), pady=5)
             button.set_wraplength((main_width - 10 * (columns - 1)) // columns)
             button.button.configure(font=("Arial", 13 if columns == 1 else 15, "bold"))
+            visible_index += 1
 
     def _update_scrollregion(self, _event: tk.Event = None) -> None:
         height = self._page.winfo_reqheight() + 48
