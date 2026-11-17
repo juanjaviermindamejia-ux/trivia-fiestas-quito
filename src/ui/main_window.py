@@ -189,8 +189,6 @@ class MainWindow(tk.Tk):
         self._timer_label.configure(
             text="Activa un comodín para iniciar los 30 segundos", fg=t.GOLD_LIGHT)
         self._sync_lifelines()
-        if self._option_buttons:
-            self.after_idle(self._option_buttons[0].button.focus_set)
 
     def _show_result(self) -> None:
         self._stop_timer()

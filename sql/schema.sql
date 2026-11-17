@@ -4,7 +4,8 @@ PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS questions (
     id   INTEGER PRIMARY KEY AUTOINCREMENT,
     code TEXT NOT NULL UNIQUE,  -- identificador estable, ej. FQ-001
-    text TEXT NOT NULL
+    text TEXT NOT NULL,
+    category TEXT NOT NULL DEFAULT 'Fiestas de Quito'
 );
 
 CREATE TABLE IF NOT EXISTS options (

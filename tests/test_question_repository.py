@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 from src.config import settings
+from src.database.connection import get_connection
 from src.database.initializer import initialize_database
 from src.database.question_repository import QuestionRepository
 
@@ -27,6 +28,16 @@ class QuestionRepositoryTest(unittest.TestCase):
         for question in self.repository.get_random_questions(100):
             correct = [option for option in question.options if option.is_correct]
             self.assertEqual(len(correct), 1)
+
+    def test_questions_are_grouped_into_the_three_requested_categories(self):
+        with get_connection(self.db_path) as connection:
+            categories = {
+                row["category"]
+                for row in connection.execute(
+                    "SELECT DISTINCT category FROM questions"
+                ).fetchall()
+            }
+        self.assertEqual(categories, {"Fiestas de Quito", "Programación", "ESPE"})
 
     def test_initializing_twice_does_not_duplicate_data(self):
         before = len(self.repository.get_random_questions(100))

@@ -88,7 +88,9 @@ class GameService:
             self._timed_out = True
 
     def start(self) -> None:
-        questions = self._repository.get_random_questions(self._questions_per_game)
+        questions = self._select_game_questions(
+            self._repository.get_questions_for_game()
+        )
         if not questions:
             raise ValueError("No hay preguntas en la base de datos.")
         self._questions = questions
@@ -96,6 +98,30 @@ class GameService:
         self._score = 0
         self._timed_out = False
         self._eliminated_options = ()
+
+    def _select_game_questions(self, questions: list[Question]) -> list[Question]:
+        categories = []
+        for question in questions:
+            if question.category not in categories:
+                categories.append(question.category)
+        if len(categories) < 2:
+            return questions[:self._questions_per_game]
+
+        selected: list[Question] = []
+        unused = list(questions)
+        for index in range(self._questions_per_game):
+            category = categories[index % len(categories)]
+            candidates = [q for q in unused if q.category == category]
+            if not candidates:
+                continue
+            target_difficulty = min(index + 1, 5)
+            question = min(
+                candidates,
+                key=lambda q: (abs(q.difficulty - target_difficulty), q.difficulty),
+            )
+            selected.append(question)
+            unused.remove(question)
+        return selected
 
     def submit_answer(self, option_index: int) -> bool:
         if self._timed_out:

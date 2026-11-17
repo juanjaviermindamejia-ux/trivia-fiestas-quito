@@ -19,6 +19,9 @@ class FakeRepository:
     def get_random_questions(self, amount):
         return self._questions[:amount]
 
+    def get_questions_for_game(self):
+        return self._questions
+
 
 class GameServiceTest(unittest.TestCase):
     def setUp(self):
@@ -51,6 +54,26 @@ class GameServiceTest(unittest.TestCase):
         game = GameService(FakeRepository([]), 3, 2)
         with self.assertRaises(ValueError):
             game.start()
+
+    def test_game_alternates_categories(self):
+        questions = [
+            Question(i, f"Pregunta {i}", (Option("Correcta", True),),
+                     category=category, difficulty=i)
+            for i, category in enumerate(
+                ["Fiestas de Quito", "Programación", "ESPE"] * 2, start=1
+            )
+        ]
+        game = GameService(FakeRepository(questions), 5, 3)
+        game.start()
+        categories = [game.current_question.category]
+        for _ in range(4):
+            game.advance()
+            categories.append(game.current_question.category)
+        self.assertEqual(
+            categories,
+            ["Fiestas de Quito", "Programación", "ESPE",
+             "Fiestas de Quito", "Programación"],
+        )
 
 
 if __name__ == "__main__":

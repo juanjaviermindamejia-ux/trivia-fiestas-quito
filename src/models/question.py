@@ -13,6 +13,8 @@ class Question:
     id: int
     text: str
     options: tuple[Option, ...]
+    category: str = "Fiestas de Quito"
+    difficulty: int = 1
 
     def is_correct_option(self, option_index: int) -> bool:
         return self.options[option_index].is_correct

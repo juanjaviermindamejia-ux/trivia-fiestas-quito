@@ -59,7 +59,10 @@ python -m unittest -v
 
 ## Agregar preguntas
 
-Edita `sql/seed.sql`: agrega la pregunta con un código nuevo (`FQ-009`, `FQ-010`...) y sus 4 opciones, con solo una `is_correct = 1`. Al abrir la app se insertan solo las nuevas. Para ver la base: DB Browser for SQLite.
+Las preguntas están agrupadas en `Fiestas de Quito`, `Programación` y `ESPE`.
+Edita `sql/seed.sql`: agrega la pregunta con un código nuevo, su categoría y sus 4 opciones,
+con solo una `is_correct = 1`. Al abrir la app se insertan solo las nuevas. Para ver la base:
+DB Browser for SQLite.
 
 ## Hardware
 

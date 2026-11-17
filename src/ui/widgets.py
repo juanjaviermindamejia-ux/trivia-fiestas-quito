@@ -99,9 +99,9 @@ class HexButton(HexPanel):
             bg=self._base_fill, fg=foreground, relief="flat", bd=0,
             activebackground=t.GOLD_LIGHT if primary else t.PANEL_HOVER,
             activeforeground=foreground, font=("Arial", 15, "bold"),
-            disabledforeground=t.MUTED, highlightthickness=2,
+            disabledforeground=t.MUTED, highlightthickness=0,
             highlightbackground=self._base_fill, highlightcolor=t.CYAN,
-            cursor="hand2", padx=2, pady=5, takefocus=True,
+            cursor="hand2", padx=2, pady=5, takefocus=False,
         )
         self.button.pack(fill="x")
         self.button.bind("<Return>", self._keyboard_invoke)
