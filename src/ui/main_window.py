@@ -152,7 +152,7 @@ class MainWindow(tk.Tk):
     def _show_start_screen(self) -> None:
         self._screen = "start"
         self._progress_label.configure(text="Tu próxima partida empieza aquí")
-        self._question_label.configure(text="¿Cuánto sabes de Quito?")
+        self._question_label.configure(text="¿Cuánto sabes de Quito, Programación y la ESPE?")
         self._feedback.configure(
             text=f"Responde {self._game.questions_per_game} preguntas. "
                  "Cada respuesta incorrecta activa el relé.",
@@ -380,6 +380,7 @@ class MainWindow(tk.Tk):
         if self._screen == "question":
             self._progress_label.configure(
                 text=f"Pregunta {self._game.current_number} de {self._game.total_questions}"
+                     f"  ·  {self._game.current_question.category}"
                      f"  ·  Aciertos: {self._game.score}",
             )
         current = self._game.current_number if self._screen == "question" else 0

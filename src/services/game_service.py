@@ -25,6 +25,7 @@ class GameService:
         self._questions_per_game = questions_per_game
         self._correct_answers_to_win = correct_answers_to_win
         self._questions: list[Question] = []
+        self._categories: list[str] = []
         self._current_index = 0
         self._score = 0
         self._timed_out = False
@@ -48,7 +49,7 @@ class GameService:
 
     @property
     def total_questions(self) -> int:
-        return len(self._questions)
+        return self._questions_per_game if self._categories else len(self._questions)
 
     @property
     def score(self) -> int:
@@ -88,16 +89,42 @@ class GameService:
             self._timed_out = True
 
     def start(self) -> None:
-        questions = self._select_game_questions(
-            self._repository.get_questions_for_game()
-        )
-        if not questions:
-            raise ValueError("No hay preguntas en la base de datos.")
-        self._questions = questions
+        """Inicia la partida; registra solo la primera pregunta efectivamente mostrada."""
+        self._questions = []
         self._current_index = 0
         self._score = 0
         self._timed_out = False
         self._eliminated_options = ()
+        # Repositorios reales: extraer una pregunta al mostrarla permite guardar
+        # el progreso incluso si se abandona una partida antes de terminarla.
+        if hasattr(self._repository, "draw_question"):
+            self._categories = self._repository.get_categories()
+            question = self._draw_next_question(0)
+            if question is None:
+                raise ValueError("No hay preguntas disponibles en los bancos.")
+            self._questions = [question]
+        else:
+            # Compatibilidad con repositorios simulados en pruebas existentes.
+            self._categories = []
+            self._questions = self._select_game_questions(
+                self._repository.get_questions_for_game()
+            )
+            if not self._questions:
+                raise ValueError("No hay preguntas en la base de datos.")
+
+    def _draw_next_question(self, index: int) -> Question | None:
+        """Alterna categorías y comprueba que el ID no está en esta partida."""
+        if not self._categories:
+            return None
+        selected_ids = {q.id for q in self._questions}
+        for offset in range(len(self._categories)):
+            category = self._categories[(index + offset) % len(self._categories)]
+            question = self._repository.draw_question(category, selected_ids)
+            if question is not None:
+                if question.id in selected_ids:
+                    raise ValueError("Se intentó repetir una pregunta en la misma partida")
+                return question
+        return None
 
     def _select_game_questions(self, questions: list[Question]) -> list[Question]:
         categories = []
@@ -135,7 +162,14 @@ class GameService:
 
     def advance(self) -> bool:
         """Pasa a la siguiente pregunta. Devuelve False si ya no hay más."""
-        if self._timed_out or self._current_index + 1 >= len(self._questions):
+        if self._timed_out or self._current_index + 1 >= self.total_questions:
+            return False
+        if self._categories:
+            question = self._draw_next_question(self._current_index + 1)
+            if question is None:
+                return False
+            self._questions.append(question)
+        elif self._current_index + 1 >= len(self._questions):
             return False
         self._current_index += 1
         self._eliminated_options = ()
@@ -144,7 +178,7 @@ class GameService:
     def result(self) -> GameResult:
         return GameResult(
             score=self._score,
-            total=len(self._questions),
+            total=self.total_questions,
             won=not self._timed_out and self._score >= self._correct_answers_to_win,
             timed_out=self._timed_out,
         )

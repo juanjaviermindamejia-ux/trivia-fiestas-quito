@@ -1,0 +1,374 @@
+================================================================================
+EVALUACIÓN TÉCNICA DE DESARROLLO DE SOFTWARE Y TICS (50 PREGUNTAS)
+Niveles: Básico (impares) e Intermedio (pares)
+================================================================================
+
+--------------------------------------------------------------------------------
+SECCIÓN 1: FUNDAMENTOS DE COMPUTACIÓN, BITS, BYTES Y SISTEMAS OPERATIVOS
+--------------------------------------------------------------------------------
+
+1. [Nivel: Básico] ¿Cuántos valores diferentes puede representar un único byte compuesto por $8$ bits?
+   A) $128$ valores distintos.
+   B) $256$ valores distintos.
+   C) $512$ valores distintos.
+   D) $64$ valores distintos.
+   -> Respuesta correcta: B) $256$ valores distintos.
+
+2. [Nivel: Intermedio] ¿Cuál es la representación hexadecimal del número binario $1101\,1010_2$?
+   A) $\text{CA}_{16}$
+   B) $\text{DB}_{16}$
+   C) $\text{DA}_{16}$
+   D) $\text{E2}_{16}$
+   -> Respuesta correcta: C) $\text{DA}_{16}$
+
+3. [Nivel: Básico] ¿Cuántos bits utiliza el estándar ASCII original para codificar cada carácter?
+   A) $7$ bits.
+   B) $8$ bits.
+   C) $16$ bits.
+   D) $4$ bits.
+   -> Respuesta correcta: A) $7$ bits.
+
+4. [Nivel: Intermedio] ¿Qué característica define principalmente a la codificación de caracteres UTF-8?
+   A) Utiliza siempre $2$ bytes fijos para todos los caracteres.
+   B) Es incompatible con el estándar ASCII de $7$ bits.
+   C) Solo permite representar alfabetos europeos occidentales.
+   D) Usa longitud variable de $1$ a $4$ bytes.
+   -> Respuesta correcta: D) Usa longitud variable de $1$ a $4$ bytes.
+
+5. [Nivel: Básico] ¿Qué unidad de memoria equivale exactamente a $1024$ bytes según el estándar IEC?
+   A) Kilobyte ($\text{kB}$).
+   B) Kibibyte ($\text{KiB}$).
+   C) Megabyte ($\text{MB}$).
+   D) Mebibyte ($\text{MiB}$).
+   -> Respuesta correcta: B) Kibibyte ($\text{KiB}$).
+
+6. [Nivel: Intermedio] ¿Cuál es el resultado de aplicar la operación bit a bit XOR entre $1010_2$ y $1100_2$?
+   A) $1000_2$
+   B) $1110_2$
+   C) $0110_2$
+   D) $0010_2$
+   -> Respuesta correcta: C) $0110_2$
+
+7. [Nivel: Básico] ¿Cuál es la función principal de la memoria RAM en un sistema informático?
+   A) Almacenar archivos de forma permanente sin energía eléctrica.
+   B) Guardar temporalmente datos e instrucciones en ejecución.
+   C) Ejecutar directamente operaciones aritméticas y lógicas.
+   D) Gestionar la comunicación física con la tarjeta de red.
+   -> Respuesta correcta: B) Guardar temporalmente datos e instrucciones en ejecución.
+
+8. [Nivel: Intermedio] ¿Cómo almacena un sistema Little-Endian un entero de $32$ bits en la memoria principal?
+   A) Coloca el byte más significativo en la dirección menor.
+   B) Almacena los bits en orden inverso dentro de cada nibble.
+   C) Coloca el byte menos significativo en la dirección menor.
+   D) Divide el entero en dos palabras independientes de $16$ bits sin orden fijo.
+   -> Respuesta correcta: C) Coloca el byte menos significativo en la dirección menor.
+
+9. [Nivel: Básico] ¿Qué componente del sistema operativo gestiona la asignación de tiempo de CPU a los procesos?
+   A) El planificador.
+   B) El cargador de arranque.
+   C) El sistema de archivos.
+   D) El controlador de dispositivos.
+   -> Respuesta correcta: A) El planificador.
+
+10. [Nivel: Intermedio] ¿Qué situación ocurre cuando dos hilos bloquean recursos mutuos esperando cada uno al otro?
+    A) Condición de carrera.
+    B) Desbordamiento de pila.
+    C) Fragmentación externa.
+    D) Interbloqueo.
+    -> Respuesta correcta: D) Interbloqueo.
+
+--------------------------------------------------------------------------------
+SECCIÓN 2: LENGUAJES DE PROGRAMACIÓN, ESTRUCTURAS DE DATOS Y BASES DE DATOS
+--------------------------------------------------------------------------------
+
+11. [Nivel: Básico] ¿Cuál de los siguientes lenguajes utiliza tipado estático por defecto?
+    A) Python.
+    B) Java.
+    C) JavaScript.
+    D) PHP.
+    -> Respuesta correcta: B) Java.
+
+12. [Nivel: Intermedio] ¿Cómo garantiza el lenguaje Rust la seguridad de memoria sin usar un recolector de basura?
+    A) Mediante conteo de referencias automático en todos los tipos primitivos.
+    B) Ejecutando una máquina virtual que libera memoria cada cierto intervalo.
+    C) Mediante reglas de propiedad y préstamo en compilación.
+    D) Prohibiendo por completo la asignación dinámica en el heap.
+    -> Respuesta correcta: C) Mediante reglas de propiedad y préstamo en compilación.
+
+13. [Nivel: Básico] ¿Qué pilar de la programación orientada a objetos oculta el estado interno de una clase?
+    A) Polimorfismo.
+    B) Herencia.
+    C) Encapsulamiento.
+    D) Sobrecarga.
+    -> Respuesta correcta: C) Encapsulamiento.
+
+14. [Nivel: Intermedio] ¿Qué permite hacer un closure (clausura) en lenguajes como JavaScript o Python?
+    A) Recordar y acceder al ámbito léxico externo tras finalizar.
+    B) Convertir automáticamente funciones síncronas en hilos paralelos.
+    C) Compilar código dinámicamente en tiempo de ejecución sin intérprete.
+    D) Eliminar variables globales de la memoria de forma manual.
+    -> Respuesta correcta: A) Recordar y acceder al ámbito léxico externo tras finalizar.
+
+15. [Nivel: Básico] ¿Qué estructura de datos sigue el principio FIFO (First In, First Out)?
+    A) Pila (Stack).
+    B) Árbol binario.
+    C) Tabla hash.
+    D) Cola (Queue).
+    -> Respuesta correcta: D) Cola (Queue).
+
+16. [Nivel: Intermedio] ¿Cómo gestiona el Event Loop de JavaScript las tareas asíncronas en un solo hilo?
+    A) Crea un hilo separado del sistema operativo para cada promesa.
+    B) Prioriza la cola de microtareas antes que las macrotareas.
+    C) Ejecuta las macrotareas antes de vaciar la pila de llamadas.
+    D) Bloquea el hilo principal hasta que todas las peticiones de red terminen.
+    -> Respuesta correcta: B) Prioriza la cola de microtareas antes que las macrotareas.
+
+17. [Nivel: Básico] ¿Qué cláusula SQL se utiliza para filtrar registros antes de realizar una agrupación?
+    A) HAVING
+    B) GROUP BY
+    C) WHERE
+    D) ORDER BY
+    -> Respuesta correcta: C) WHERE
+
+18. [Nivel: Intermedio] ¿Cuál es la complejidad temporal promedio de búsqueda por clave en una tabla hash?
+    A) $O(1)$
+    B) $O(\log n)$
+    C) $O(n)$
+    D) $O(n \log n)$
+    -> Respuesta correcta: A) $O(1)$
+
+19. [Nivel: Básico] ¿Qué tipo de unión SQL devuelve únicamente las filas con coincidencia en ambas tablas?
+    A) LEFT JOIN
+    B) FULL OUTER JOIN
+    C) CROSS JOIN
+    D) INNER JOIN
+    -> Respuesta correcta: D) INNER JOIN
+
+20. [Nivel: Intermedio] ¿Qué propiedad ACID garantiza que una transacción se ejecute por completo o no se aplique?
+    A) Consistencia.
+    B) Atomicidad.
+    C) Aislamiento.
+    D) Durabilidad.
+    -> Respuesta correcta: B) Atomicidad.
+
+--------------------------------------------------------------------------------
+SECCIÓN 3: DESARROLLO WEB, FRAMEWORKS, ARQUITECTURA Y DEVOPS
+--------------------------------------------------------------------------------
+
+21. [Nivel: Básico] ¿Qué etiqueta HTML se utiliza para enlazar una hoja de estilos CSS externa?
+    A) <script>
+    B) <style>
+    C) <link>
+    D) <meta>
+    -> Respuesta correcta: C) <link>
+
+22. [Nivel: Intermedio] ¿Cuál es el objetivo principal del Virtual DOM en frameworks como React?
+    A) Calcular diferencias mínimas antes de actualizar el DOM real.
+    B) Almacenar el estado global de la aplicación en el almacenamiento local.
+    C) Reemplazar el motor de renderizado CSS del navegador.
+    D) Ejecutar consultas SQL directamente desde los componentes visuales.
+    -> Respuesta correcta: A) Calcular diferencias mínimas antes de actualizar el DOM real.
+
+23. [Nivel: Básico] En el patrón arquitectónico MVC, ¿qué capa gestiona los datos y la lógica de negocio?
+    A) La Vista.
+    B) El Controlador.
+    C) El Enrutador.
+    D) El Modelo.
+    -> Respuesta correcta: D) El Modelo.
+
+24. [Nivel: Intermedio] ¿Qué ventaja aporta el patrón de Inyección de Dependencias en frameworks como Spring Boot o Angular?
+    A) Elimina la necesidad de utilizar interfaces o clases abstractas.
+    B) Reduce el acoplamiento al delegar la creación de objetos.
+    C) Convierte el código fuente directamente en lenguaje ensamblador.
+    D) Duplica las instancias en memoria para evitar accesos concurrentes.
+    -> Respuesta correcta: B) Reduce el acoplamiento al delegar la creación de objetos.
+
+25. [Nivel: Básico] ¿Qué método HTTP se utiliza convencionalmente para obtener recursos sin modificar el servidor?
+    A) POST
+    B) DELETE
+    C) GET
+    D) PATCH
+    -> Respuesta correcta: C) GET
+
+26. [Nivel: Intermedio] ¿Qué problema típico de las APIs REST resuelve GraphQL?
+    A) El over-fetching y under-fetching de datos.
+    B) La falta de cifrado en la capa de transporte TLS.
+    C) La imposibilidad de usar formato JSON en las respuestas.
+    D) El límite de conexiones simultáneas en el protocolo TCP.
+    -> Respuesta correcta: A) El over-fetching y under-fetching de datos.
+
+27. [Nivel: Básico] ¿Qué indica el código de estado HTTP $404$?
+    A) Error interno del servidor.
+    B) Acceso no autorizado por falta de credenciales.
+    C) Petición procesada con éxito.
+    D) Recurso solicitado no encontrado.
+    -> Respuesta correcta: D) Recurso solicitado no encontrado.
+
+28. [Nivel: Intermedio] ¿Cuál es la principal ventaja del Server-Side Rendering (SSR) frente al Client-Side Rendering (CSR)?
+    A) Reduce a cero la carga de procesamiento en el servidor backend.
+    B) Mejora el SEO y el tiempo de primer pintado.
+    C) Permite ejecutar la aplicación sin conexión a internet desde el primer acceso.
+    D) Evita por completo el uso de JavaScript en el navegador del cliente.
+    -> Respuesta correcta: B) Mejora el SEO y el tiempo de primer pintado.
+
+29. [Nivel: Básico] ¿Qué comando de Git descarga cambios remotos y los fusiona en la rama local actual?
+    A) git push
+    B) git commit
+    C) git pull
+    D) git clone
+    -> Respuesta correcta: C) git pull
+
+30. [Nivel: Intermedio] ¿Cuál es la diferencia fundamental entre un contenedor Docker y una máquina virtual?
+    A) El contenedor comparte el kernel del sistema operativo anfitrión.
+    B) La máquina virtual no requiere ningún hipervisor para ejecutarse.
+    C) El contenedor emula completamente el hardware físico de la CPU.
+    D) La máquina virtual solo puede ejecutar sistemas operativos basados en Linux.
+    -> Respuesta correcta: A) El contenedor comparte el kernel del sistema operativo anfitrión.
+
+--------------------------------------------------------------------------------
+SECCIÓN 4: REDES DE COMPUTADORAS Y PROTOCOLOS DE COMUNICACIÓN
+--------------------------------------------------------------------------------
+
+31. [Nivel: Básico] ¿Cuál es la función principal del sistema de nombres de dominio (DNS)?
+    A) Asignar direcciones MAC dinámicas a los routers.
+    B) Cifrar todo el tráfico web entre cliente y servidor.
+    C) Filtrar paquetes maliciosos en el perímetro de la red.
+    D) Traducir nombres de dominio a direcciones IP.
+    -> Respuesta correcta: D) Traducir nombres de dominio a direcciones IP.
+
+32. [Nivel: Intermedio] ¿En qué capa del modelo OSI opera principalmente el protocolo IP?
+    A) Capa de Enlace de Datos.
+    B) Capa de Red.
+    C) Capa de Transporte.
+    D) Capa de Sesión.
+    -> Respuesta correcta: B) Capa de Red.
+
+33. [Nivel: Básico] ¿Qué característica distingue a una dirección MAC de una dirección IP?
+    A) La dirección MAC cambia cada vez que el equipo se conecta a una red Wi-Fi.
+    B) La dirección IP tiene siempre una longitud fija de $48$ bits.
+    C) La dirección MAC identifica físicamente a la interfaz de red.
+    D) La dirección IP se graba de fábrica en el hardware de la tarjeta.
+    -> Respuesta correcta: C) La dirección MAC identifica físicamente a la interfaz de red.
+
+34. [Nivel: Intermedio] ¿Qué diferencia técnica fundamental existe entre TCP y UDP?
+    A) TCP garantiza la entrega ordenada y UDP no.
+    B) UDP establece una conexión mediante saludo de tres vías y TCP no.
+    C) TCP solo funciona en redes locales y UDP solo en internet.
+    D) UDP cifra los datos por defecto y TCP los envía en texto plano.
+    -> Respuesta correcta: A) TCP garantiza la entrega ordenada y UDP no.
+
+35. [Nivel: Básico] ¿Qué protocolo asigna automáticamente direcciones IP a los dispositivos de una red local?
+    A) ICMP.
+    B) FTP.
+    C) SMTP.
+    D) DHCP.
+    -> Respuesta correcta: D) DHCP.
+
+36. [Nivel: Intermedio] ¿Cuántas direcciones IP utilizables para hosts ofrece una subred IPv4 con máscara $/24$?
+    A) $256$ direcciones.
+    B) $254$ direcciones.
+    C) $255$ direcciones.
+    D) $128$ direcciones.
+    -> Respuesta correcta: B) $254$ direcciones.
+
+37. [Nivel: Básico] ¿Cuál es la diferencia principal entre un switch y un router?
+    A) El router conecta dispositivos dentro de una misma VLAN y el switch conecta redes distintas.
+    B) El switch utiliza direcciones IP públicas y el router solo direcciones MAC.
+    C) El switch opera en capa 2 y el router en capa 3.
+    D) El router no puede enrutar paquetes entre diferentes subredes.
+    -> Respuesta correcta: C) El switch opera en capa 2 y el router en capa 3.
+
+38. [Nivel: Intermedio] ¿Cuál es la función principal de la tecnología NAT (Network Address Translation)?
+    A) Traducir direcciones IP privadas a una dirección IP pública.
+    B) Convertir señales analógicas de teléfono en paquetes digitales Ethernet.
+    C) Aumentar el ancho de banda físico de un enlace de fibra óptica.
+    D) Detectar colisiones de tramas en redes inalámbricas compartidas.
+    -> Respuesta correcta: A) Traducir direcciones IP privadas a una dirección IP pública.
+
+39. [Nivel: Básico] ¿Qué puerto TCP estándar utiliza el protocolo HTTPS por defecto?
+    A) Puerto $80$.
+    B) Puerto $22$.
+    C) Puerto $53$.
+    D) Puerto $443$.
+    -> Respuesta correcta: D) Puerto $443$.
+
+40. [Nivel: Intermedio] ¿Qué función cumple el protocolo ARP en una red local Ethernet?
+    A) Asignar nombres de dominio locales a servidores web internos.
+    B) Descubrir la dirección MAC asociada a una dirección IP.
+    C) Medir la latencia entre dos nodos mediante paquetes de eco.
+    D) Establecer túneles cifrados punto a punto entre sucursales.
+    -> Respuesta correcta: B) Descubrir la dirección MAC asociada a una dirección IP.
+
+--------------------------------------------------------------------------------
+SECCIÓN 5: CIBERSEGURIDAD, CRIPTOGRAFÍA Y SEGURIDAD EN APLICACIONES
+--------------------------------------------------------------------------------
+
+41. [Nivel: Básico] ¿Qué diferencia existe entre autenticación y autorización en seguridad informática?
+    A) La autorización verifica identidad y la autenticación cifra contraseñas.
+    B) Ambas palabras significan exactamente el mismo proceso técnico.
+    C) La autenticación verifica identidad y la autorización verifica permisos.
+    D) La autenticación ocurre solo en bases de datos y la autorización solo en firewalls.
+    -> Respuesta correcta: C) La autenticación verifica identidad y la autorización verifica permisos.
+
+42. [Nivel: Intermedio] ¿Qué caracteriza a la criptografía asimétrica frente a la simétrica?
+    A) Usa un par de claves matemáticamente vinculadas: pública y privada.
+    B) Emplea exactamente la misma clave secreta para cifrar y descifrar.
+    C) Es significativamente más rápida para cifrar archivos de varios gigabytes.
+    D) No requiere algoritmos matemáticos complejos para proteger la información.
+    -> Respuesta correcta: A) Usa un par de claves matemáticamente vinculadas: pública y privada.
+
+43. [Nivel: Básico] ¿Qué técnica de ataque busca engañar a usuarios para robar credenciales suplantando entidades legítimas?
+    A) Fuerza bruta.
+    B) Denegación de servicio (DDoS).
+    C) Desbordamiento de búfer.
+    D) Phishing.
+    -> Respuesta correcta: D) Phishing.
+
+44. [Nivel: Intermedio] ¿Cuál es la defensa más efectiva contra ataques de Inyección SQL (SQLi)?
+    A) Ocultar los mensajes de error de la base de datos en el frontend.
+    B) Usar consultas parametrizadas o sentencias preparadas.
+    C) Cambiar el puerto por defecto del servidor de base de datos.
+    D) Limitar la longitud máxima de las contraseñas a $12$ caracteres.
+    -> Respuesta correcta: B) Usar consultas parametrizadas o sentencias preparadas.
+
+45. [Nivel: Básico] ¿Cuál es la función principal de un Firewall en una infraestructura de red?
+    A) Respaldar automáticamente las bases de datos cada noche.
+    B) Acelerar la resolución de consultas DNS internas.
+    C) Filtrar el tráfico entrante y saliente según reglas de seguridad.
+    D) Compilar el código fuente antes de desplegarlo en producción.
+    -> Respuesta correcta: C) Filtrar el tráfico entrante y saliente según reglas de seguridad.
+
+46. [Nivel: Intermedio] ¿En qué consiste una vulnerabilidad XSS (Cross-Site Scripting)?
+    A) Inyectar código JavaScript malicioso que se ejecuta en el navegador.
+    B) Interceptar paquetes ARP en una red Wi-Fi pública sin cifrar.
+    C) Saturar el ancho de banda de un servidor mediante peticiones ICMP masivas.
+    D) Ejecutar comandos del sistema operativo directamente en el servidor de archivos.
+    -> Respuesta correcta: A) Inyectar código JavaScript malicioso que se ejecuta en el navegador.
+
+47. [Nivel: Básico] ¿Qué propiedad define a una función hash criptográfica como SHA-256?
+    A) Permite recuperar el texto original fácilmente usando una clave maestra.
+    B) Comprime archivos multimedia reduciendo su tamaño a la mitad.
+    C) Cambia su resultado cada vez que se procesa exactamente la misma entrada.
+    D) Genera una salida de longitud fija de manera unidireccional.
+    -> Respuesta correcta: D) Genera una salida de longitud fija de manera unidireccional.
+
+48. [Nivel: Intermedio] ¿Qué parte de un JSON Web Token (JWT) garantiza que su contenido no haya sido alterado?
+    A) El encabezado (Header) codificado en Base64Url.
+    B) La firma criptográfica (Signature) generada con el secreto.
+    C) La carga útil (Payload) con los claims del usuario.
+    D) El identificador único de sesión almacenado en el navegador.
+    -> Respuesta correcta: B) La firma criptográfica (Signature) generada con el secreto.
+
+49. [Nivel: Básico] ¿Qué establece el principio de mínimo privilegio en seguridad informática?
+    A) Todos los usuarios deben tener acceso de lectura a toda la red interna.
+    B) Las contraseñas deben tener el mínimo número de caracteres posible.
+    C) Conceder únicamente los permisos estrictamente necesarios para cada tarea.
+    D) Solo los administradores pueden utilizar conexiones cifradas HTTPS.
+    -> Respuesta correcta: C) Conceder únicamente los permisos estrictamente necesarios para cada tarea.
+
+50. [Nivel: Intermedio] ¿Cómo mitiga el atributo `SameSite=Strict` en las cookies los ataques CSRF?
+    A) Evita que el navegador envíe la cookie en peticiones de sitios externos.
+    B) Impide que el código JavaScript acceda a la cookie mediante `document.cookie`.
+    C) Obliga a que la cookie se transmita únicamente sobre conexiones HTTPS.
+    D) Cifra el contenido de la cookie utilizando la clave pública del servidor.
+    -> Respuesta correcta: A) Evita que el navegador envíe la cookie en peticiones de sitios externos.

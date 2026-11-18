@@ -1,6 +1,6 @@
-# Trivia Fiestas de Quito
+# Trivia: Fiestas de Quito, Programación y ESPE
 
-Trivia con interfaz gráfica sobre las Fiestas de Quito. Las preguntas viven en una base de datos SQLite. Cada vez que el jugador responde mal una pregunta, Python envía una señal por serial a un **ESP32**, que hace clic rápido en un **relé** durante un instante. Si responde bien, no pasa nada.
+Trivia con interfaz gráfica y tres bancos independientes (50 preguntas de Fiestas de Quito, 50 de Programación y TICs, y 50 de la ESPE). Cada pregunta tiene cuatro opciones y una sola respuesta correcta. Las preguntas y el historial de uso viven en una base de datos SQLite. Cada vez que el jugador responde mal una pregunta, Python envía una señal por serial a un **ESP32**, que hace clic rápido en un **relé** durante un instante. Si responde bien, no pasa nada.
 
 ```
 Interfaz (Tkinter) → Servicio (reglas) → Repositorio → SQLite
@@ -14,7 +14,8 @@ Interfaz (Tkinter) → Servicio (reglas) → Repositorio → SQLite
 trivia-fiestas-quito/
 ├── main.py                  # punto de entrada
 ├── requirements.txt
-├── data/                    # trivia.db se genera aquí (no se sube a Git)
+├── banks/                   # los 3 archivos TXT originales
+├── data/                    # trivia.db (incluida, se sincroniza al abrir)
 ├── sql/
 │   ├── schema.sql           # tablas e índices
 │   └── seed.sql             # preguntas y opciones iniciales
@@ -26,7 +27,7 @@ trivia-fiestas-quito/
 │   ├── hardware/            # comunicación serial con el ESP32
 │   └── ui/                  # ventana Tkinter
 ├── firmware/esp32_relay/    # código Arduino del ESP32
-├── scripts/                 # utilidades: listar puertos y probar el relé
+├── scripts/                 # importador TXT, puertos y pruebas del relé
 └── tests/                   # pruebas automáticas
 ```
 
@@ -34,7 +35,7 @@ Cada carpeta tiene una sola responsabilidad: la interfaz no toca SQL y la base d
 
 ## Instalación y uso
 
-Requiere Python 3.9 o superior (Tkinter viene incluido; en Linux: `sudo apt install python3-tk`).
+Requiere Python 3.10 o superior (Tkinter viene incluido; en Linux: `sudo apt install python3-tk`).
 
 ```bash
 python -m venv .venv
@@ -53,7 +54,7 @@ Si el ESP32 no está conectado, la trivia funciona igual en modo sin relé.
 | Preguntas por partida y aciertos para ganar | `src/config.py` |
 | Pin del relé, velocidad de clics, duración y descanso del toque | constantes al inicio de `firmware/esp32_relay/esp32_relay.ino` |
 
-Para saber qué puerto usa tu ESP32 (por defecto se busca `COM3`):
+Para saber qué puerto usa tu ESP32 (por defecto se configura `COM6`):
 
 ```bash
 python -m scripts.list_ports
@@ -81,12 +82,52 @@ python -m scripts.test_relay
 python -m unittest -v
 ```
 
-## Agregar preguntas
+## Bancos de preguntas y control de repetición
 
-Las preguntas están agrupadas en `Fiestas de Quito`, `Programación` y `ESPE`.
-Edita `sql/seed.sql`: agrega la pregunta con un código nuevo, su categoría y sus 4 opciones,
-con solo una `is_correct = 1`. Al abrir la app se insertan solo las nuevas. Para ver la base:
-DB Browser for SQLite.
+| Archivo TXT | Categoría en SQLite | Códigos | Preguntas |
+|---|---|---|---:|
+| `banks/fiestas_de_quito.txt` | Fiestas de Quito | `FQ-001` a `FQ-050` | 50 |
+| `banks/programacion.txt` | Programación | `PG-001` a `PG-050` | 50 |
+| `banks/espe.txt` | ESPE | `ES-001` a `ES-050` | 50 |
+
+Las opciones A, B, C y D están en la tabla `options`, con exactamente una marcada como correcta.
+La tabla `used_questions` guarda los identificadores ya mostrados y funciona como historial
+independiente para cada categoría. Este historial **permanece después de cerrar la app**.
+
+### ¿Cómo se evitan las repeticiones?
+
+1. Al mostrar una pregunta, el programa carga en un conjunto los IDs usados de esa categoría.
+2. Escoge aleatoriamente una pregunta cuyo ID no esté en ese conjunto **ni en la partida actual**.
+3. Verifica que existan cuatro opciones y una sola correcta, y guarda el ID en SQLite.
+4. Cuando un banco ha mostrado sus 50 preguntas, **solo su historial se vacía** en la siguiente extracción; inicia otro ciclo aleatorio.
+5. Los otros dos bancos continúan donde quedaron, sin perder su progreso.
+
+El juego alterna las categorías (Quito → Programación → ESPE), muestra **5 preguntas
+por partida** y exige **3 aciertos** para ganar, como en el código original.
+Una partida interrumpida solo consume las preguntas que llegaron a mostrarse.
+
+### Cómo actualizar los bancos desde los TXT
+
+Edita las preguntas en `banks/`, manteniendo su numeración, cuatro opciones `A)` a `D)`
+y la línea `-> Respuesta correcta: X) ...`. Después ejecuta:
+
+```bash
+python -m scripts.import_question_banks
+python main.py
+```
+
+El primer comando regenera `sql/seed.sql` y valida el contenido, las cuatro opciones y
+la respuesta correcta de los 150 registros. `main.py` actualiza SQLite al inicio, sin
+borrar el historial de las preguntas que mantienen sus identificadores. Para consultar
+la base puedes utilizar DB Browser for SQLite.
+
+Para **reiniciar manualmente todos los ciclos** (solo si deseas empezar desde cero):
+
+```sql
+DELETE FROM used_questions;
+```
+
+No es necesario ejecutar este comando para el uso normal del juego.
 
 ## Hardware
 
