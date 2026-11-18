@@ -18,7 +18,7 @@ def main() -> None:
                        settings.correct_answers_to_win)
     relay = create_relay_controller(settings.serial_port, settings.baud_rate)
 
-    MainWindow(game, relay, settings.relay_seconds).mainloop()
+    MainWindow(game, relay).mainloop()
 
 
 if __name__ == "__main__":

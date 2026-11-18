@@ -13,12 +13,9 @@ from src.ui.widgets import HexButton, HexPanel, Stage
 
 
 class MainWindow(tk.Tk):
-    def __init__(
-        self, game: GameService, relay: RelayController, relay_seconds: int
-    ) -> None:
+    def __init__(self, game: GameService, relay: RelayController) -> None:
         super().__init__()
         self._game, self._relay = game, relay
-        self._relay_delay_ms = relay_seconds * 1000
         self._option_buttons: list[HexButton] = []
         self._screen = "start"
         self._answer_pending = False
@@ -29,7 +26,6 @@ class MainWindow(tk.Tk):
         self._timer_job: str | None = None
         self._countdown = Countdown(t.LIFELINE_SECONDS)
         self._lifeline_used: set[int] = set()
-        self._relay_jobs: set[str] = set()
         self._layout_mode: tuple[bool, bool, int] | None = None
         self.title(t.WINDOW_TITLE)
         self.geometry(t.WINDOW_SIZE)
@@ -95,8 +91,7 @@ class MainWindow(tk.Tk):
         self._feedback.pack(fill="x", pady=(12, 8))
         self._play_button = HexButton(self._main, "Jugar", self._start_game, primary=True)
         self._build_ladder()
-        status = "ESP32 conectado" if self._relay.is_connected else "Modo sin relé · ESP32 no conectado"
-        self._footer = self._label(self._page, status, size=10, color=t.MUTED)
+        self._footer = self._label(self._page, self._relay.description, size=10, color=t.MUTED)
         self._footer.pack(fill="x", pady=(24, 12))
 
     def _build_lifelines(self) -> None:
@@ -160,7 +155,7 @@ class MainWindow(tk.Tk):
         self._question_label.configure(text="¿Cuánto sabes de Quito?")
         self._feedback.configure(
             text=f"Responde {self._game.questions_per_game} preguntas. "
-                 f"Con {self._game.correct_answers_to_win} aciertos o más se enciende el relé.",
+                 "Cada respuesta incorrecta activa el relé.",
         )
         self._play_button.pack(fill="x", padx=36, pady=(4, 10))
         if self._game.questions_per_game != 5:
@@ -208,9 +203,7 @@ class MainWindow(tk.Tk):
             self._timer_label.configure(text="Partida finalizada", fg=t.MUTED)
         if result.won:
             message = f"¡Ganaste!\n{result.score} de {result.total} aciertos"
-            self._feedback.configure(text="¡Se enciende el relé!", fg=t.CORRECT_BORDER)
-            self._relay.turn_on()
-            self._schedule_relay_off()
+            self._feedback.configure(text="¡Excelente partida!", fg=t.CORRECT_BORDER)
         elif not result.timed_out:
             message = f"Puntaje: {result.score} de {result.total}\nInténtalo de nuevo."
             self._feedback.configure(
@@ -269,6 +262,8 @@ class MainWindow(tk.Tk):
         self._sync_lifelines()
         question = self._game.current_question
         was_correct = self._game.submit_answer(selected_index)
+        if not was_correct:
+            self._relay.trigger()  # solo una respuesta incorrecta activa el relé
         self._answered_count = self._game.current_number
         self._completed[self._game.current_number] = was_correct
         for index, (button, option) in enumerate(zip(self._option_buttons, question.options)):
@@ -361,16 +356,9 @@ class MainWindow(tk.Tk):
         else:
             self._show_result()
 
-    def _schedule_relay_off(self) -> None:
-        def turn_off() -> None:
-            self._relay_jobs.discard(job)
-            self._relay.turn_off()
-        job = self.after(self._relay_delay_ms, turn_off)
-        self._relay_jobs.add(job)
-
     def _on_close(self) -> None:
         self._stop_timer()
-        for job in (self._layout_job, self._next_job, *self._relay_jobs):
+        for job in (self._layout_job, self._next_job):
             if job is not None:
                 self.after_cancel(job)
         self._relay.close()

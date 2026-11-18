@@ -28,6 +28,10 @@ class DatabaseGameTestCase(unittest.TestCase):
         return next(index for index, option in enumerate(self.game.current_question.options)
                     if option.is_correct)
 
+    def wrong_index(self):
+        return next(index for index, option in enumerate(self.game.current_question.options)
+                    if not option.is_correct)
+
 
 class GameLifelineTest(DatabaseGameTestCase):
     def test_fifty_fifty_eliminates_exactly_two_incorrect_options(self):
@@ -91,8 +95,9 @@ class LifelineUITest(DatabaseGameTestCase):
         self.now = 0.0
         self.relay = Mock(spec=NullRelayController)
         self.relay.is_connected = False
+        self.relay.description = "Modo sin relé"
         try:
-            self.app = MainWindow(self.game, self.relay, 5)
+            self.app = MainWindow(self.game, self.relay)
         except tk.TclError as error:
             self.skipTest(f"La prueba gráfica requiere una pantalla Tk: {error}")
         self.addCleanup(self.app._on_close)
@@ -165,11 +170,19 @@ class LifelineUITest(DatabaseGameTestCase):
         self.assertEqual(self.game.score, 0)
         self.assertEqual(self.app._screen, "result")
         self.assertIn("Perdiste", self.app._question_label.cget("text"))
-        self.relay.turn_on.assert_not_called()
+        self.relay.trigger.assert_not_called()
         self.app._play_button.button.invoke()
         self.app.update_idletasks()
         self.assertFalse(self.game.result().timed_out)
         self.assertIsNone(self.app._timer_job)
+
+    def test_wrong_answer_triggers_relay_once(self):
+        self.app._on_answer(self.wrong_index())
+        self.relay.trigger.assert_called_once_with()
+
+    def test_correct_answer_does_not_trigger_relay(self):
+        self.app._on_answer(self.correct_index())
+        self.relay.trigger.assert_not_called()
 
     def test_tick_expires_game_without_relay_even_with_three_correct_answers(self):
         for _ in range(3):
@@ -182,4 +195,4 @@ class LifelineUITest(DatabaseGameTestCase):
         self.assertFalse(self.game.result().won)
         self.assertTrue(self.game.result().timed_out)
         self.assertIn("00:00", self.app._timer_label.cget("text"))
-        self.relay.turn_on.assert_not_called()
+        self.relay.trigger.assert_not_called()
