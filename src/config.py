@@ -18,7 +18,7 @@ class Settings:
     # es el tuyo: python -m scripts.list_ports
     # Cada integrante puede usar el suyo sin editar este archivo, con la variable
     # de entorno TRIVIA_SERIAL_PORT (PowerShell: $env:TRIVIA_SERIAL_PORT = "COM5").
-    serial_port: str = os.getenv("TRIVIA_SERIAL_PORT", "COM3")
+    serial_port: str = os.getenv("TRIVIA_SERIAL_PORT", "COM6")
     baud_rate: int = 115200  # debe ser igual a BAUD_RATE en el firmware (.ino)
 
     # Reglas del juego
